@@ -1,233 +1,368 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scrapbot Market Watch</title>
+<title>Scrapbot Montagne</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one column of sections; summary tiles first, then learning over time, then one category in depth. */
+/* Layout: topo-map paper. A hero with contour lines, then trail-sign plaques leading to each gear page. */
 :root {
-  --bg: #f6f8fa;
-  --surface: #fcfcfb;
-  --ink: #101418;
-  --ink-2: #4b5560;
-  --ink-3: #7a858f;
-  --line: #dde3e8;
-  --grid: #e8ecef;
-  --accent: #2a78d6;
-  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
-  --good: #0ca30c; --warn: #fab219;
-  --chip-good-bg: #e3f4e3; --chip-learn-bg: #fdf1d6;
-  --font-display: "Barlow Semi Condensed", "Arial Narrow", sans-serif;
-  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
-  --font-data: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --paper: #eef2ef;        /* map paper, cool green-grey */
+  --surface: #f9fbf9;
+  --ink: #16201c;
+  --ink-2: #4a5852;
+  --ink-3: #7b8882;
+  --rule: #d3dcd6;
+  --contour: #c3cfc7;
+  --sign: #f2c230;         /* trail-sign yellow */
+  --sign-ink: #1b1a14;
+  --forest: #2f6b4f;       /* links, positive margin */
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;   /* validated chart palette, slots 1-3 */
+  --font-display: "Archivo", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #12161a; --surface: #1a1f24; --ink: #eef1f3; --ink-2: #b7c0c8; --ink-3: #8a949d;
-    --line: #2c343b; --grid: #262d33; --accent: #3987e5;
+    --paper: #0f1513; --surface: #161e1b; --ink: #e8eee9; --ink-2: #aab7b0; --ink-3: #7d8a84;
+    --rule: #26312c; --contour: #22302a; --sign: #f2c230; --sign-ink: #1b1a14; --forest: #6fc39a;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-    --chip-good-bg: #173a1c; --chip-learn-bg: #3d3216;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #12161a; --surface: #1a1f24; --ink: #eef1f3; --ink-2: #b7c0c8; --ink-3: #8a949d;
-  --line: #2c343b; --grid: #262d33; --accent: #3987e5;
+  --paper: #0f1513; --surface: #161e1b; --ink: #e8eee9; --ink-2: #aab7b0; --ink-3: #7d8a84;
+  --rule: #26312c; --contour: #22302a; --sign: #f2c230; --sign-ink: #1b1a14; --forest: #6fc39a;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-  --chip-good-bg: #173a1c; --chip-learn-bg: #3d3216;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font: 15px/1.5 var(--font-body);
-}
-.wrap {
-  max-width: 1180px; margin: 0 auto;
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 var(--font-body); }
+a { color: var(--forest); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+.gutter {
+  max-width: 1160px; margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 28px 56px;
-  display: grid; gap: 28px;
 }
-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
-h1 {
-  font: 700 2.1rem/1.05 var(--font-display); letter-spacing: .01em; margin: 0; text-wrap: balance;
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+/* ── Top bar ── */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.topbar .gutter { display: flex; align-items: center; gap: 6px 20px; flex-wrap: wrap; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font: 800 1.15rem/1 var(--font-display); font-stretch: 112%; letter-spacing: -.01em; margin-right: auto; }
+.brand:hover { text-decoration: none; }
+.brand svg { flex: none; }
+.menu { display: flex; gap: 4px; flex-wrap: wrap; }
+.menu button, .menu a {
+  font: 600 .92rem var(--font-body); color: var(--ink-2); background: none; border: 0; cursor: pointer;
+  padding: 7px 12px; border-radius: 4px;
 }
-h1 small { display: block; font: 500 .95rem/1.4 var(--font-body); color: var(--ink-2); letter-spacing: 0; margin-top: 4px; }
-.stamp { font: 400 .8rem var(--font-data); color: var(--ink-3); }
-h2 {
-  font: 600 1.25rem/1.2 var(--font-display); margin: 0 0 4px; letter-spacing: .01em; text-wrap: balance;
+.menu a:hover, .menu button:hover { color: var(--ink); background: var(--surface); text-decoration: none; }
+.menu [aria-current="page"], .menu button[aria-expanded="true"] { color: var(--ink); background: var(--surface); box-shadow: inset 0 -2px 0 var(--sign); }
+.stamp { font: 400 .75rem var(--font-data); color: var(--ink-3); }
+
+/* ── Gear menu panel ── */
+.gear-panel { border-top: 1px solid var(--rule); background: var(--surface); }
+.gear-panel .gutter { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 18px 28px; padding-block: 18px 22px; }
+.gear-panel h3 { font: 700 .78rem var(--font-display); font-stretch: 115%; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin: 0 0 6px; }
+.gear-panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.gear-panel a { display: flex; justify-content: space-between; gap: 10px; color: var(--ink); padding: 3px 0; }
+.gear-panel a span { color: var(--ink-3); font: 400 .8rem var(--font-data); }
+
+/* ── Hero ── */
+.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--rule); }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero .gutter { position: relative; padding-block: 56px 48px; display: grid; gap: 18px; }
+.eyebrow { font: 600 .78rem var(--font-body); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+.hero h1 { margin: 0; font: 800 clamp(2.2rem, 6vw, 4.2rem)/1 var(--font-display); font-stretch: 118%; letter-spacing: -.02em; max-width: 16ch; text-wrap: balance; }
+.hero h1 .big { background: var(--sign); color: var(--sign-ink); padding: 0 .14em; border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.hero p { margin: 0; max-width: 58ch; color: var(--ink-2); font-size: 1.05rem; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.btn { font: 600 .95rem var(--font-body); border-radius: 4px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn:hover { opacity: .88; }
+.alt-strip { display: flex; flex-wrap: wrap; gap: 6px 26px; margin-top: 10px; font-size: .88rem; color: var(--ink-2); }
+.alt-strip b { font: 500 1rem var(--font-data); color: var(--ink); margin-right: 4px; }
+
+/* ── Sections ── */
+main section { padding-block: 40px 8px; }
+h2 { font: 800 1.55rem/1.15 var(--font-display); font-stretch: 112%; letter-spacing: -.01em; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; }
+
+/* resale cards */
+.flips { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.flip { display: grid; gap: 10px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; color: var(--ink); }
+.flip:hover { border-color: var(--ink-3); text-decoration: none; }
+.flip .t { font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.flip .meta { font-size: .8rem; color: var(--ink-3); }
+.flip .money { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px dashed var(--rule); padding-top: 10px; }
+.flip .buy { font: 500 .95rem var(--font-data); color: var(--ink-2); }
+.flip .gain { font: 600 1.35rem var(--font-data); color: var(--forest); }
+.empty-card { background: var(--surface); border: 1px dashed var(--rule); border-radius: 6px; padding: 18px; color: var(--ink-2); display: grid; gap: 10px; }
+.progress { height: 8px; background: var(--rule); border-radius: 4px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--forest); }
+
+/* trail-sign plaques */
+.families { display: grid; gap: 26px; }
+.family h3 { font: 700 .8rem var(--font-display); font-stretch: 115%; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-3); margin: 0 0 8px; }
+.signs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 8px; }
+.sign {
+  position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--rule);
+  padding: 10px 30px 10px 14px; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
 }
-.lede { color: var(--ink-2); margin: 0 0 14px; max-width: 70ch; font-size: .93rem; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.tile { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
-.tile .v { font: 500 1.6rem/1.1 var(--font-data); font-variant-numeric: tabular-nums; }
-.tile .k { font-size: .78rem; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; }
-.tile .s { font-size: .8rem; color: var(--ink-3); }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 16px; }
-.chart { position: relative; height: 300px; }
+.sign:hover { text-decoration: none; border-color: var(--ink-3); }
+.sign.hot { background: var(--sign); color: var(--sign-ink); border-color: var(--sign); }
+.sign .n { font: 700 1rem var(--font-display); font-stretch: 108%; }
+.sign .d { font: 500 .8rem var(--font-data); text-align: right; }
+.sign .s { grid-column: 1 / -1; font-size: .78rem; opacity: .75; }
+
+/* charts */
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; min-width: 0; }
+.chart { position: relative; height: 280px; }
 .empty { display: grid; place-items: center; height: 100%; color: var(--ink-3); font-size: .9rem; text-align: center; padding: 0 20px; }
-.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
-label[for="cat"] { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
-select {
-  font: 500 1rem var(--font-body); color: var(--ink); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer;
-}
-select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: .9rem; color: var(--ink-2); margin-bottom: 12px; }
-.facts b { font: 500 .95rem var(--font-data); color: var(--ink); }
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: .88rem; }
-th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-th { font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
-td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; }
-th.num { text-align: right; }
-td.title { white-space: normal; min-width: 220px; }
-tr.click { cursor: pointer; }
-tr.click:hover td { background: var(--bg); }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-.chip { display: inline-flex; align-items: center; gap: 5px; font-size: .78rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
-.chip.ready { background: var(--chip-good-bg); color: var(--ink); }
-.chip.ready::before { content: "✓"; color: var(--good); }
-.chip.learn { background: var(--chip-learn-bg); color: var(--ink); }
-.chip.learn::before { content: "◔"; color: var(--warn); }
-.chip.flip { background: var(--chip-learn-bg); color: var(--ink); }
-.chip.personal { background: var(--bg); color: var(--ink-2); border: 1px solid var(--line); }
-.note { font-size: .8rem; color: var(--ink-3); margin: 10px 0 0; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-nav a.tab { font: 600 .95rem var(--font-display); letter-spacing: .02em; padding: 6px 12px; border-radius: 6px; color: var(--ink-2); }
-nav a.tab[aria-current="page"] { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
-.cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 10px; }
-.cat-card { display: grid; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--ink); }
-.cat-card:hover { border-color: var(--accent); text-decoration: none; }
-.cat-card .name { font: 600 1.05rem var(--font-display); }
-.cat-card .row { display: flex; justify-content: space-between; gap: 8px; font-size: .82rem; color: var(--ink-2); }
-.cat-card .row b { font: 500 .85rem var(--font-data); color: var(--ink); }
+
+/* category page */
+.crumbs { font-size: .85rem; color: var(--ink-3); padding-top: 28px; }
+.cat-head { display: grid; gap: 10px; padding-block: 8px 6px; }
+.cat-head h1, .page-title { margin: 0; font: 800 clamp(2rem, 5vw, 3.2rem)/1 var(--font-display); font-stretch: 118%; letter-spacing: -.02em; }
+.page-title { margin-bottom: 10px; }
+.facts { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); overflow: hidden; }
+.fact { flex: 1 1 150px; padding: 10px 14px; border-right: 1px solid var(--rule); display: grid; gap: 2px; }
+.fact:last-child { border-right: 0; }
+.fact .k { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.fact .v { font: 500 1.05rem var(--font-data); }
 .filters { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 12px; }
-.filters input[type="search"] { font: 400 .95rem var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; min-width: 0; flex: 1 1 200px; }
+.filters input[type="search"], .filters select {
+  font: 400 .95rem var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px;
+}
+.filters input[type="search"] { flex: 1 1 220px; min-width: 0; }
 .filters label { font-size: .88rem; color: var(--ink-2); display: inline-flex; gap: 6px; align-items: center; }
-.pos { color: var(--good); } .neg { color: var(--ink-3); }
-.back { font-size: .9rem; }
+.ads { display: grid; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.ad { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 12px 16px; border-bottom: 1px solid var(--rule); color: var(--ink); }
+.ad:last-child { border-bottom: 0; }
+a.ad:hover { background: var(--paper); text-decoration: none; }
+.ad .t { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.ad .meta { font-size: .8rem; color: var(--ink-3); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ad .price { font: 600 1.05rem var(--font-data); text-align: right; }
+.ad .profit { font: 500 .85rem var(--font-data); text-align: right; color: var(--ink-3); }
+.ad .profit.pos { color: var(--forest); }
+.tag { font: 600 .7rem var(--font-body); text-transform: uppercase; letter-spacing: .06em; padding: 1px 7px; border-radius: 3px; background: var(--paper); color: var(--ink-2); border: 1px solid var(--rule); }
+.tag.flip { background: var(--sign); color: var(--sign-ink); border-color: var(--sign); }
+.site { font-weight: 600; color: var(--ink-2); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+td.r, th.r { text-align: right; }
+.state { font-size: .8rem; font-weight: 600; }
+.state.ok { color: var(--forest); }
+.state.learn { color: var(--ink-3); }
+footer { padding-block: 40px 56px; color: var(--ink-3); font-size: .82rem; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Scrapbot Market Watch<small>Second-hand mountain gear: good offers, resale profit and what sells fast</small></h1>
-    <div class="stamp" id="stamp"></div>
-  </header>
-  <nav aria-label="Pages">
-    <a class="tab" href="#overview" id="tab-overview">Overview</a>
-    <label for="catNav" class="tab" style="padding-right:0">Browse</label>
-    <select id="catNav" aria-label="Browse a category"></select>
-  </nav>
+<header class="topbar">
+  <div class="gutter">
+    <a class="brand" href="#accueil" aria-label="Scrapbot, accueil">
+      <svg width="30" height="22" viewBox="0 0 30 22" aria-hidden="true"><path d="M1 21 L11 5 L15 11 L19 4 L29 21 Z" fill="var(--ink)"/><path d="M8.6 9 L11 5 L13.3 8.7 L11.6 8 L10.2 9.3 Z M17.1 7.2 L19 4 L21 7.3 L19.6 6.7 L18.4 7.8 Z" fill="var(--paper)"/></svg>
+      Scrapbot
+    </a>
+    <nav class="menu" aria-label="Navigation">
+      <a href="#accueil" id="nav-accueil">Accueil</a>
+      <button type="button" id="gearBtn" aria-expanded="false" aria-controls="gearPanel">Matériel ▾</button>
+      <a href="#marche" id="nav-marche">Marché</a>
+    </nav>
+    <span class="stamp" id="stamp"></span>
+  </div>
+  <div class="gear-panel" id="gearPanel" hidden><div class="gutter" id="gearMenu"></div></div>
+</header>
 
-  <!-- ───────────── Overview ───────────── -->
-  <div id="view-overview" class="wrap" style="padding:0">
-    <section class="tiles" id="tiles" aria-label="Summary"></section>
-
-    <section class="grid2">
-      <div class="panel"><div class="chart"><canvas id="dealsChart" aria-label="Good offers per day"></canvas></div></div>
-      <div class="panel"><div class="chart"><canvas id="profitChart" aria-label="Estimated resale profit per day"></canvas></div></div>
+<main>
+  <!-- ───────── Accueil ───────── -->
+  <div id="view-accueil">
+    <section class="hero" style="padding:0">
+      <canvas id="topo" aria-hidden="true"></canvas>
+      <div class="gutter">
+        <span class="eyebrow" id="heroDate"></span>
+        <h1 id="heroTitle"></h1>
+        <p id="heroText"></p>
+        <div class="cta">
+          <button class="btn" type="button" id="ctaFlips">Voir les reventes</button>
+          <button class="btn ghost" type="button" id="ctaGear">Parcourir le matériel</button>
+        </div>
+        <div class="alt-strip" id="heroStrip"></div>
+      </div>
     </section>
 
-    <section>
-      <h2>Best resale opportunities still online</h2>
-      <p class="lede" id="profitNote"></p>
-      <div class="panel table-wrap"><table id="flipTable"></table></div>
+    <section class="gutter" id="flipsSection">
+      <h2>À revendre en ce moment</h2>
+      <p class="lede" id="flipsLede"></p>
+      <div class="flips" id="flips"></div>
     </section>
 
-    <section>
-      <h2>Categories</h2>
-      <p class="lede">Ready means the bot has seen enough quick sales to estimate a resale price.</p>
-      <div class="cats" id="cats"></div>
+    <section class="gutter" id="gearSection">
+      <h2>Le matériel</h2>
+      <p class="lede">En jaune : les catégories avec des bonnes affaires cette semaine.</p>
+      <div class="families" id="families"></div>
     </section>
 
-    <section>
-      <h2>Learning progress</h2>
-      <p class="lede" id="learnNote"></p>
-      <div class="panel"><div class="chart"><canvas id="adsChart" aria-label="Ads collected per day, by site"></canvas></div></div>
+    <section class="gutter">
+      <h2>Cette semaine</h2>
+      <div class="grid2">
+        <div class="panel"><div class="chart"><canvas id="dealsChart" aria-label="Bonnes affaires par jour"></canvas></div></div>
+        <div class="panel"><div class="chart"><canvas id="profitChart" aria-label="Marge estimée par jour"></canvas></div></div>
+      </div>
     </section>
   </div>
 
-  <!-- ───────────── Category ───────────── -->
-  <div id="view-category" class="wrap" style="padding:0" hidden>
-    <section>
-      <a class="back" href="#overview">← Overview</a>
-      <h2 id="catTitle" style="font-size:1.7rem;margin-top:6px"></h2>
-      <div class="facts" id="facts"></div>
-    </section>
-
-    <section>
-      <h2>Ads online now</h2>
-      <div class="filters">
-        <input type="search" id="q" placeholder="Filter by brand or model, e.g. petzl" aria-label="Filter ads">
-        <label><input type="checkbox" id="onlyDeals"> Only good offers</label>
-        <label for="sort">Sort</label>
-        <select id="sort"><option value="seen">Newest</option><option value="profit">Est. profit</option><option value="price">Price</option></select>
+  <!-- ───────── Catégorie ───────── -->
+  <div id="view-cat" hidden>
+    <div class="gutter">
+      <div class="crumbs" id="crumbs"></div>
+      <div class="cat-head">
+        <h1 id="catTitle"></h1>
+        <div class="facts" id="facts"></div>
       </div>
-      <div class="panel table-wrap"><table id="browseTable"></table></div>
+    </div>
+    <section class="gutter">
+      <h2>Annonces en ligne</h2>
+      <div class="filters">
+        <input type="search" id="q" placeholder="Filtrer : petzl, nomic, taille M…" aria-label="Filtrer les annonces">
+        <label><input type="checkbox" id="onlyDeals"> Bonnes affaires seulement</label>
+        <label for="sort">Trier</label>
+        <select id="sort"><option value="seen">Plus récentes</option><option value="profit">Marge estimée</option><option value="price">Prix croissant</option></select>
+      </div>
+      <div class="ads" id="ads"></div>
     </section>
-
-    <section>
-      <h2>How fast it sells, by price</h2>
+    <section class="gutter">
+      <h2>À quel prix ça part vite ?</h2>
       <p class="lede" id="fastLede"></p>
       <div class="grid2">
-        <div class="panel"><div class="chart"><canvas id="scatterChart" aria-label="Price against days until sold"></canvas></div></div>
-        <div class="panel"><div class="chart"><canvas id="bandChart" aria-label="Share sold quickly, by price band"></canvas></div></div>
+        <div class="panel"><div class="chart"><canvas id="scatterChart" aria-label="Prix et jours avant la vente"></canvas></div></div>
+        <div class="panel"><div class="chart"><canvas id="bandChart" aria-label="Part vendue vite par tranche de prix"></canvas></div></div>
       </div>
     </section>
   </div>
-</div>
+
+  <!-- ───────── Marché ───────── -->
+  <div id="view-marche" hidden>
+    <section class="gutter">
+      <h1 class="page-title">Le marché</h1>
+      <p class="lede" id="marketLede"></p>
+      <div class="panel"><div class="chart"><canvas id="adsChart" aria-label="Annonces collectées par jour et par site"></canvas></div></div>
+    </section>
+    <section class="gutter">
+      <h2>Toutes les catégories</h2>
+      <div class="panel table-wrap" style="padding:0"><table id="catTable"></table></div>
+    </section>
+    <section class="gutter">
+      <h2>Comment la marge est calculée</h2>
+      <p class="lede" id="profitNote"></p>
+    </section>
+  </div>
+</main>
+<footer class="gutter" id="footer"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 <script>
-const DATA = {"generated": "2026-10-29 18:39", "fast_days": 7, "min_samples": 6, "negotiation": 0.1, "haircut": 0.9, "days": ["2026-10-29"], "sources": ["ebay", "leboncoin", "vinted"], "ads_per_day": {"ebay": [93], "leboncoin": [71], "vinted": [12]}, "deals_per_day": {"personal": [0], "flip": [0]}, "profit_per_day": [0], "totals": {"offers_today": 0, "offers_7d": 0, "flips_7d": 0, "profit_7d": 0, "open_flips": 0, "open_profit": 0, "ads": 176, "tracked": 0, "ebay_sold": 0, "days": 1, "ready": 0, "categories": 27}, "top_flips": [], "categories": {"hardshell_jacket": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "hardshell_pants": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "ice_axes": {"ads": 176, "online": 176, "asking_median": 120, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": [{"title": "ANCIEN PIOLET BOIS ICE AXE La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 136, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/117492915955", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien HUPFAUF ? FRITSCH ? suisse ? GARANTIERT Numerote swiss ICE axe La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 260, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/306011908001", "kind": "", "profit": null, "resale": null}, {"title": "Charlet-Moser Vintage Ice Axe Piolet Wooden Shaft Chamonix France Approx 84cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 225, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800717593046", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Mountaineering Ice Axe \"Rally\" 31.5\" Super Light Italy Alps Piolet Green La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 81, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227537837004", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Vintage Wooden Shaft Ice Axe Piolet 74cm 1970s Made in Italy Mountaineering La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 476, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800689808417", "kind": "", "profit": null, "resale": null}, {"title": "~~~ Old Antique ICE AXE \"F.Ralling Fulpmes\" Mountaineer PIOLET Austria ~~~ La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 175, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/128082769126", "kind": "", "profit": null, "resale": null}, {"title": "Charlet-Moser Vintage Ice Axe Piolet Wooden Shaft Mountaineering Climbing Brown La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 992, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800636311922", "kind": "", "profit": null, "resale": null}, {"title": "Swiss WILUSCH Ice Axe Piolet Wooden Shaft Metal Head Classic Design Equipment La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 330, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800632668756", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Super Conta Vintage Ice Axe Piolet Wood Shaft 80cm France La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 183, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800041244606", "kind": "", "profit": null, "resale": null}, {"title": "WILLISCH Swiss Vintage Wooden Ice Axe / Piolet Mountaineering Tool Rare La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 312, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800037125410", "kind": "", "profit": null, "resale": null}, {"title": "SIMOND Fennec Ice Axe 64cm w/ Leash & Cover Mountaineering Piolet Pickel La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 151, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800036871651", "kind": "", "profit": null, "resale": null}, {"title": "1942 A.HUPFAUF Swiss Army Ice Axe Piolet 89cm Wood Shaft +Arm 16081 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 2259, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800029913304", "kind": "", "profit": null, "resale": null}, {"title": "Vintage Gebr. Andenmatten Saas-Almagell Ice Axe Alps Swiss Army Military Piolet La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 152, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227366073829", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Hummingbird Ice Axe - Ultralight Titanium Piolet (212g) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 234, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/389987646762", "kind": "", "profit": null, "resale": null}, {"title": "INSIGNIA PIN DE ALFILER TEMA MONTAÑISMO ESCALADA SENDERISMO..PIOLET ICE AXE HAT. La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 26, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/146424602744", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Interalp Chouinard Piolet Ice Axe Eispickel - Excellent Original Condition La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 650, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/126970937056", "kind": "", "profit": null, "resale": null}, {"title": "Hache à glace Blue Ice Bluebird - Piolet d'alpinisme en acier inoxydable La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 192, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/387463713811", "kind": "", "profit": null, "resale": null}, {"title": "Wooden Walking Stick Cane Ice axe Eispickl Piolet STUBAI La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 268, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/156043611152", "kind": "", "profit": null, "resale": null}, {"title": "Wooden Walking Stick Cane Ice axe Eispickl Piolet La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 170, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/155008172550", "kind": "", "profit": null, "resale": null}, {"title": "Vintage Wooden walking stick cane ice axe Germany Eispickl Piolet design Style La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 49, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/224698318194", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET METAL 83CM - CHARLET MOSER G -OUTIL ALPINISME ESCALADE MONTAGNE- La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/327275094550", "kind": "", "profit": null, "resale": null}, {"title": "TOP SNOWMAN Ice-Bender Vintage Ice Axe Wood Shaft 80cm Tokyo Japan Climbing La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 288, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082061057", "kind": "", "profit": null, "resale": null}, {"title": "MacInnes Glencoe Vintage Ice Axe 65cm Scotland All Metal Climbing Pick La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 234, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082068279", "kind": "", "profit": null, "resale": null}, {"title": "Beau et Rare piolet ancien Alpinisme   CL SIMOND  SUPER chamonix Montagne Ski La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 139, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/198534845867", "kind": "", "profit": null, "resale": null}, {"title": "Ancien Bâton de Marche  Piolet Alpinisme Bois Sculpté Alpin LANFREY La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 30, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/298409120866", "kind": "", "profit": null, "resale": null}, {"title": "Simond Super D Vintage Ice Axe Wood Shaft Alpinisme Pickel 28in France La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 323, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082790114", "kind": "", "profit": null, "resale": null}, {"title": "TOKYO HOPE Glanz Vintage Ice Axe Wood Shaft 55,5cm Japon Alpinisme Rare La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 195, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082063929", "kind": "", "profit": null, "resale": null}, {"title": "Ancien et rare Piolet Suisse Hasler Berner Oberland Vintage climbing alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 414, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880055671226", "kind": "", "profit": null, "resale": null}, {"title": "Outil ancien PIOLET D'ALPINISTE Réf 26/2106 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 90, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/318051682602", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser piolet  réf. 853 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/237119177512", "kind": "", "profit": null, "resale": null}, {"title": "RARE Outil Ancien Marteau à pic Piolet MARQUIS A.AUNEAU marteau géologue La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/407309395537", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET MANCHE BOIS OUTIL ESCALADE ALPINISME MONTAGNE, lot de 2 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 145, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227490575037", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Blue Ice Bluebird 45 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 198, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880060182360", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET (Petit) DÉCORATIF + THERMOMÈTRE et CHAUSSURE (vieille) MONTAGNE. CORDE. La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/377036653398", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET  , CANNE DE MARCHE DE MONTAGNE , CHAMONIX , POIGNEE CORNE DE CHAMOIX La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/168528836164", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET  , CANNE DE MARCHE DE MONTAGNE  GRAVEE La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 23, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/168528836506", "kind": "", "profit": null, "resale": null}, {"title": "Ancien PIOLET, bâton de marche,  montagne, déco, vintage bois et alu.Edelweiss La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 20, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800833227576", "kind": "", "profit": null, "resale": null}, {"title": "Canne Ancienne de Marche Ferrée Bâton Pointe Piolet Alpinisme Bois Sculpté La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 30, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/306997698550", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien stubai années 50 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 74, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/178449883872", "kind": "", "profit": null, "resale": null}, {"title": "Hache à glace Grivel North Machine avec glace &amp; Thor - 47 cm (jaune sommet) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 227, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880061378877", "kind": "", "profit": null, "resale": null}, {"title": "Grivel North Machine Hache à glace avec glace &amp; Adze Vario - 47 cm (jaune sommet) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 227, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880061302000", "kind": "", "profit": null, "resale": null}, {"title": "Grivel - The North Machine Carbon avec marteau machine à glace escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 315, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227219246195", "kind": "", "profit": null, "resale": null}, {"title": "Grivel - The North Machine Carbon avec pelle machine à glace escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 315, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227219246163", "kind": "", "profit": null, "resale": null}, {"title": "Petzl - Machine à glace Nomic escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 285, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/327349723787", "kind": "", "profit": null, "resale": null}, {"title": "Machine à glaçons PETZL Nomic pour escalade sur glace 03/2026 pas de rappel La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 229, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/147361456111", "kind": "", "profit": null, "resale": null}, {"title": "Petzl - Pelle pour appareils à glace Quark/Nomic/Ergo piolets à glace outils à glace escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 40, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/326934597439", "kind": "", "profit": null, "resale": null}, {"title": "Petzl - Mini Marteau Marteau pour glaçons Quark/Nomic/Ergonomic à partir de la version 2018 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 35, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/326794341662", "kind": "", "profit": null, "resale": null}, {"title": "Paire de piolets techniques montagne Simond Anaconda Cup + extras très bon état La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 250, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/257553867916", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel The Light Machine Escalade Alpinisme Technique La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 174, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/306165523745", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila LT Hammer Ice Axe - Packable Technical Piolet (43cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 155, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/800630614928", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila LT Adze Ice Axe - Packable Technical Piolet (43cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 167, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/389987647053", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila Adze Ice Axe - Lightweight Technical Piolet (49cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 201, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/389987646753", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila Hammer Ice Axe - Lightweight Technical Piolet (49cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 201, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/389987646759", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Charlet Chamonix La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 45, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/860065831725", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET ANCIEN J CHARLET N° 1 CHAMONIX ALPINISME ESCALADE DEBUT XXeS La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 115, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/377603022960", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien Charlet Moser, Chamonix La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 126, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/137881876162", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET METAL 82,5CM - LAPRADE - OUTIL ALPINISME ESCALADE MONTAGNE - La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/327308512046", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET MONTAGNE ESCALADE ALPINISME  INTERALP CAMP PREMANA MADE IN ITALY La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 79, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/307221948759", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET MANCHE BOIS - CAMP INTERALP- OUTIL ESCALADE ALPINISME MONTAGNE - La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 115, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/327351493359", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien Alpinisme Claudius   SIMOND  Special MK2 chamonix Montagne Ski La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 119, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/198736127317", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Simond Chamonix Mont-Blanc vintage alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 131, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/900020207230", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Chouinard Zéro alpinisme vintage climbing La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 176, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880055623536", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Claudius Simond Chamonix n°2 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 65, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/237145511006", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme ancien manche bois tête métal dragonne pointe plaques souvenir La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 42, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/287669546376", "kind": "", "profit": null, "resale": null}, {"title": "2 anciens Piolets Claudius Simond CHAMONIX Mont Blanc/Montagne/alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 250, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/398393952744", "kind": "", "profit": null, "resale": null}, {"title": "Ancien et rare Piolet Suisse BHEND Vintage climbing alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 400, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/178541478284", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Alpinisme Montagne Signature La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 125, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/236876709337", "kind": "", "profit": null, "resale": null}, {"title": "Rare ancien Piolet Claudius Simond CHAMONIX Mont Blanc numero 1 . La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 399, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/820042735581", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet vintage GRUEL MONT BLANC La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 60, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/136196157137", "kind": "", "profit": null, "resale": null}, {"title": "Ancien PIOLET d'alpinisme charlet moser 64 cm Montagne Deco Chalet No Simond La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 42, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/257808686382", "kind": "", "profit": null, "resale": null}, {"title": "BOÎTE RONDE BOIS TOURNÉ Art Populaire Alpiniste Piolet Montagne Art Déco d13.5cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/377603960060", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet d'alpiniste CHARLET MOSER FRANCE Old Ice collection montagne La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 52, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/237142556076", "kind": "", "profit": null, "resale": null}, {"title": "❤️Beau piolet Charlet Moser  escalade alpinisme escalade montagne * La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 80, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/405321430290", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet d'alpiniste CAMP INTERALP Made in ITALY MOSER Old Ice La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 280, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/128080258467", "kind": "", "profit": null, "resale": null}, {"title": "Piolet De Randonnée Sur Neige CAMP ALPINA 50 Cm. La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 139, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/305764021610", "kind": "", "profit": null, "resale": null}, {"title": "piolet Laprade by simond CHAMONIX et crampons Laprade - Alpinisme glacier La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 53, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/356420837992", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Corsa piolet vert alpinisme, piolet d’alpinisme CAMP Corsa vert La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 53, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/287637869673", "kind": "", "profit": null, "resale": null}, {"title": "ALPINISME PIOLET CHARLET MOSER MADE IN FRANCE La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 58, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/386947309402", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet LAPRADE DESMAISON alpinisme escalade montagne sport d'hiver neige La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 63, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/188783004638", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet d'alpinisme SIMOND COUGUAR Chamonix France vintage montagne La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 80, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/256570335914", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET ANCIEN J CHARLET CHAMONIX ALPINISME ESCALADE GLACE HACHE DEBUT XXeS La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 170, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/166868066812", "kind": "", "profit": null, "resale": null}, {"title": "Ancien Rare Piolet CASSIN Himalaya alpinisme Montagne No CHARLET MOSER simond La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 53, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/960126519104", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Camp Zenith 65 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 164, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013165987", "kind": "", "profit": null, "resale": null}, {"title": "Piccozza Picozza Picca Alpinisme Technique GRIVEL GOST EVO 45 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 121, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/278119299749", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Piolet Summit 52 Cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 120, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/237134192970", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel Air Tech Evo 53 Cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 153, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/276929387071", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel G Zero Noir 58 Cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 76, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/306165523699", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Camp Corsa Nanotech 45 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 158, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013169579", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpin Camp Corsa 55 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 115, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013101349", "kind": "", "profit": null, "resale": null}, {"title": "Neve 65 cm Gris Anthracite Tête Ergonomique en Acier Piolets Marteaux Classique La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 100, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/137869099761", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET INTERALP 1950 ITALY ALPINISME  (ville De Fabrication Premana Italy La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 240, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/187622330498", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Camp Neve 50 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 92, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013083218", "kind": "", "profit": null, "resale": null}, {"title": "Boucle de piolet d'escalade Drag-Tour La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013172326", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Kailas dagger ice axe neuf", "price": 120, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2603709158", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel The North Machine Carbon", "price": 190, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3285238740", "kind": "", "profit": null, "resale": null}, {"title": "Piolets grivel north machine carbone", "price": 220, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3280923794", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel", "price": 75, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3260791568", "kind": "", "profit": null, "resale": null}, {"title": "Lot de 2 Piolet grivel ancien modèle north machine cascade avec panne et lame neuve", "price": 340, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3142695375", "kind": "", "profit": null, "resale": null}, {"title": "Piolet carbone Black Diamond Cobra", "price": 120, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2950741533", "kind": "", "profit": null, "resale": null}, {"title": "Piolet sum tec PETZL", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3289314108", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme petzel sum'tec neuf", "price": 130, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3287529990", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Sum Tec", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3285182794", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Sum'tec Petzl", "price": 115, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3268919553", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Sumtec neuf marteau", "price": 130, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3200683407", "kind": "", "profit": null, "resale": null}, {"title": "1 Piolet Petzl Nomic", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3295972461", "kind": "", "profit": null, "resale": null}, {"title": "Lame de rechange nomic petzl", "price": 20, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3290007076", "kind": "", "profit": null, "resale": null}, {"title": "Une paire de piolets Nomic Petzl", "price": 250, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3289154951", "kind": "", "profit": null, "resale": null}, {"title": "2 Piolets Nomic Petzl", "price": 250, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3288900553", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl nomic", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3284207402", "kind": "", "profit": null, "resale": null}, {"title": "Paire nomic tres bon etat", "price": 375, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3278576517", "kind": "", "profit": null, "resale": null}, {"title": "Lame Krukonogi pour nomic petzl", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3193538976", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Quark", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3294239145", "kind": "", "profit": null, "resale": null}, {"title": "Paire de piolet Peztl quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3293524021", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 250, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292941656", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292940373", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 230, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292939883", "kind": "", "profit": null, "resale": null}, {"title": "Location piolet crampon", "price": 25, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/autres_services/3138423165", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Quark lame cascade", "price": 50, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3285672900", "kind": "", "profit": null, "resale": null}, {"title": "Lame piolet ice", "price": 60, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3284151594", "kind": "", "profit": null, "resale": null}, {"title": "Piolet traction petzl Quark", "price": 115, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3281573261", "kind": "", "profit": null, "resale": null}, {"title": "Lames de piolet Petzl", "price": 50, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3280240962", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Quark marteau", "price": 170, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3269606287", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Quark Petzl", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3269387944", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Petzl Quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3269041373", "kind": "", "profit": null, "resale": null}, {"title": "Piolet quark petzl", "price": 290, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3265765376", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark Charlet", "price": 109, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3240730594", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Quark", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3232900958", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3227512853", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 150, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3226098887", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Quarks Petzl", "price": 350, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3201357764", "kind": "", "profit": null, "resale": null}, {"title": "Quark petzl", "price": 40, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3126742429", "kind": "", "profit": null, "resale": null}, {"title": "Dragonne piolet Petzl", "price": 25, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3087099822", "kind": "", "profit": null, "resale": null}, {"title": "Dragonne clipsable quark", "price": 29, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3087098948", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Quark", "price": 320, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3032183387", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 290, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2981786947", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Spark ICE Rock", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2913978673", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2727973978", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Gully", "price": 95, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3295083678", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Technique alpinisme", "price": 60, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292940988", "kind": "", "profit": null, "resale": null}, {"title": "Vends piolet technique Charlet-Moser", "price": 70, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3274121118", "kind": "", "profit": null, "resale": null}, {"title": "Piolet camp alpina", "price": 45, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3290442326", "kind": "", "profit": null, "resale": null}, {"title": "Paire piolet Black Diamond Viper", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3289949118", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Sum'Tec – Piolet technique d’alpinisme", "price": 100, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3287331313", "kind": "", "profit": null, "resale": null}, {"title": "Piolet technique CAMP X ALL MOUNTAIN", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3254420041", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Sum’tec", "price": 130, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3279688478", "kind": "", "profit": null, "resale": null}, {"title": "Paire de piolets Grivel Quantum tech carbone", "price": 260, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3277154631", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Simond jaguar light 60cm", "price": 60, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3276094355", "kind": "", "profit": null, "resale": null}, {"title": "Lame piolet total ice + vario", "price": 20, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297755268", "kind": "", "profit": null, "resale": null}, {"title": "Lames piolets", "price": 30, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297752586", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Gully", "price": 100, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297738630", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel Light Wing", "price": 35, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297602627", "kind": "", "profit": null, "resale": null}, {"title": "De très nombreux anciens piolets en bois chamonix", "price": 100, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/decoration/3297550354", "kind": "", "profit": null, "resale": null}, {"title": "Un piolet en bois démontable François Simond chamonix", "price": 340, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/decoration/3297548139", "kind": "", "profit": null, "resale": null}, {"title": "Piolet technique alpinisme", "price": 30, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297433147", "kind": "", "profit": null, "resale": null}, {"title": "Paire de Piolet Charlet Moser", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297411856", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Simona spécial MK2", "price": 95, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/decoration/3297279083", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Grivel The Dark Machine X", "price": 450, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3274611752", "kind": "", "profit": null, "resale": null}, {"title": "Piolet simond", "price": 40, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297241053", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Climbing Technologie Hound +", "price": 65, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297226947", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl glacier", "price": 70, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297132441", "kind": "", "profit": null, "resale": null}, {"title": "Piolet pioche", "price": 145, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297001274", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme", "price": 55, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3296781481", "kind": "", "profit": null, "resale": null}, {"title": "Piolet ancien François SIMOND Chamonix Mont-Blanc", "price": 120, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/collection/3296648258", "kind": "", "profit": null, "resale": null}, {"title": "Piolets PETZL - Quarks", "price": 209, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3296636936", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Quark Ergo ice tools", "price": 275, "source": "vinted", "seen": "2026-10-29 18:22", "url": "/items/10346581271-charlet-moser-quark-ergo-ice-tools", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Quark Eisgeräte Paar sehr guter Zustand", "price": 170, "source": "vinted", "seen": "2026-10-29 18:22", "url": "/items/9996087459-petzl-quark-eisgerate-paar-sehr-guter-zustand", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Petzl Quark", "price": 240, "source": "vinted", "seen": "2026-10-29 18:22", "url": "/items/8413908501-piolets-petzl-quark", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Quark cascade ice pick", "price": 45, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10315126849-charlet-moser-quark-cascade-ice-pick", "kind": "", "profit": null, "resale": null}, {"title": "Fundas para piolos Quark, Nomic y Ergonomic", "price": 25, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/7831572150-fundas-para-piolos-quark-nomic-y-ergonomic", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme technique", "price": 30, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10570813978-piolet-alpinisme-technique", "kind": "", "profit": null, "resale": null}, {"title": "Accesorios Piolet Petzl Nomic/Ergonomic", "price": 35, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10580241645-accesorios-piolet-petzl-nomicergonomic", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme", "price": 65, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10566363045-piolet-alpinisme", "kind": "", "profit": null, "resale": null}, {"title": "Crampones Camp Stalker y Piolet Simond", "price": 105, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10553318704-crampones-camp-stalker-y-piolet-simond", "kind": "", "profit": null, "resale": null}, {"title": "Canne de marche piolet ancienne", "price": 35, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10547546416-canne-de-marche-piolet-ancienne", "kind": "", "profit": null, "resale": null}, {"title": "Piolet décoratif alpin vintage avec cloche et chamois – 54 cm", "price": 20, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10526882866-piolet-decoratif-alpin-vintage-avec-cloche-et-chamois-54-cm", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Charlet Moser", "price": 60, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10483115824-piolet-charlet-moser", "kind": "", "profit": null, "resale": null}]}, "ropes": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "harnesses": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "packs": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "ice_screws": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "crampons": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "base_layers": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "down_jackets": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "softshell_fleece": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "gloves": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "mountaineering_boots": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "climbing_shoes": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "touring_skis": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "touring_boots": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "touring_bindings": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "skins": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "avalanche_transceivers": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "shovel_probe": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "helmets": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "quickdraws_carabiners": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "belay_devices": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "protection_cams": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "sleeping_bags": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "tents": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "poles_headlamps": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}}};
+const DATA = {"generated": "2026-10-29 18:48", "fast_days": 7, "min_samples": 6, "negotiation": 0.1, "haircut": 0.9, "days": ["2026-10-29"], "sources": ["ebay", "leboncoin", "vinted"], "ads_per_day": {"ebay": [93], "leboncoin": [71], "vinted": [12]}, "deals_per_day": {"personal": [0], "flip": [0]}, "profit_per_day": [0], "totals": {"offers_today": 0, "offers_7d": 0, "flips_7d": 0, "profit_7d": 0, "open_flips": 0, "open_profit": 0, "ads": 176, "tracked": 0, "ebay_sold": 0, "days": 1, "ready": 0, "categories": 27}, "top_flips": [], "categories": {"hardshell_jacket": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "hardshell_pants": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "ice_axes": {"ads": 176, "online": 176, "asking_median": 120, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": [{"title": "ANCIEN PIOLET BOIS ICE AXE La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 136, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/117492915955", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien HUPFAUF ? FRITSCH ? suisse ? GARANTIERT Numerote swiss ICE axe La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 260, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/306011908001", "kind": "", "profit": null, "resale": null}, {"title": "Charlet-Moser Vintage Ice Axe Piolet Wooden Shaft Chamonix France Approx 84cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 225, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800717593046", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Mountaineering Ice Axe \"Rally\" 31.5\" Super Light Italy Alps Piolet Green La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 81, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227537837004", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Vintage Wooden Shaft Ice Axe Piolet 74cm 1970s Made in Italy Mountaineering La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 476, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800689808417", "kind": "", "profit": null, "resale": null}, {"title": "~~~ Old Antique ICE AXE \"F.Ralling Fulpmes\" Mountaineer PIOLET Austria ~~~ La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 175, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/128082769126", "kind": "", "profit": null, "resale": null}, {"title": "Charlet-Moser Vintage Ice Axe Piolet Wooden Shaft Mountaineering Climbing Brown La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 992, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800636311922", "kind": "", "profit": null, "resale": null}, {"title": "Swiss WILUSCH Ice Axe Piolet Wooden Shaft Metal Head Classic Design Equipment La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 330, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800632668756", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Super Conta Vintage Ice Axe Piolet Wood Shaft 80cm France La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 183, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800041244606", "kind": "", "profit": null, "resale": null}, {"title": "WILLISCH Swiss Vintage Wooden Ice Axe / Piolet Mountaineering Tool Rare La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 312, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800037125410", "kind": "", "profit": null, "resale": null}, {"title": "SIMOND Fennec Ice Axe 64cm w/ Leash & Cover Mountaineering Piolet Pickel La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 151, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800036871651", "kind": "", "profit": null, "resale": null}, {"title": "1942 A.HUPFAUF Swiss Army Ice Axe Piolet 89cm Wood Shaft +Arm 16081 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 2259, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800029913304", "kind": "", "profit": null, "resale": null}, {"title": "Vintage Gebr. Andenmatten Saas-Almagell Ice Axe Alps Swiss Army Military Piolet La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 152, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227366073829", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Hummingbird Ice Axe - Ultralight Titanium Piolet (212g) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 234, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/389987646762", "kind": "", "profit": null, "resale": null}, {"title": "INSIGNIA PIN DE ALFILER TEMA MONTAÑISMO ESCALADA SENDERISMO..PIOLET ICE AXE HAT. La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 26, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/146424602744", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Interalp Chouinard Piolet Ice Axe Eispickel - Excellent Original Condition La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 650, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/126970937056", "kind": "", "profit": null, "resale": null}, {"title": "Hache à glace Blue Ice Bluebird - Piolet d'alpinisme en acier inoxydable La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 192, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/387463713811", "kind": "", "profit": null, "resale": null}, {"title": "Wooden Walking Stick Cane Ice axe Eispickl Piolet STUBAI La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 268, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/156043611152", "kind": "", "profit": null, "resale": null}, {"title": "Wooden Walking Stick Cane Ice axe Eispickl Piolet La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 170, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/155008172550", "kind": "", "profit": null, "resale": null}, {"title": "Vintage Wooden walking stick cane ice axe Germany Eispickl Piolet design Style La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 49, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/224698318194", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET METAL 83CM - CHARLET MOSER G -OUTIL ALPINISME ESCALADE MONTAGNE- La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/327275094550", "kind": "", "profit": null, "resale": null}, {"title": "TOP SNOWMAN Ice-Bender Vintage Ice Axe Wood Shaft 80cm Tokyo Japan Climbing La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 288, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082061057", "kind": "", "profit": null, "resale": null}, {"title": "MacInnes Glencoe Vintage Ice Axe 65cm Scotland All Metal Climbing Pick La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 234, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082068279", "kind": "", "profit": null, "resale": null}, {"title": "Beau et Rare piolet ancien Alpinisme   CL SIMOND  SUPER chamonix Montagne Ski La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 139, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/198534845867", "kind": "", "profit": null, "resale": null}, {"title": "Ancien Bâton de Marche  Piolet Alpinisme Bois Sculpté Alpin LANFREY La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 30, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/298409120866", "kind": "", "profit": null, "resale": null}, {"title": "Simond Super D Vintage Ice Axe Wood Shaft Alpinisme Pickel 28in France La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 323, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082790114", "kind": "", "profit": null, "resale": null}, {"title": "TOKYO HOPE Glanz Vintage Ice Axe Wood Shaft 55,5cm Japon Alpinisme Rare La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 195, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/920082063929", "kind": "", "profit": null, "resale": null}, {"title": "Ancien et rare Piolet Suisse Hasler Berner Oberland Vintage climbing alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 414, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880055671226", "kind": "", "profit": null, "resale": null}, {"title": "Outil ancien PIOLET D'ALPINISTE Réf 26/2106 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 90, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/318051682602", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser piolet  réf. 853 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/237119177512", "kind": "", "profit": null, "resale": null}, {"title": "RARE Outil Ancien Marteau à pic Piolet MARQUIS A.AUNEAU marteau géologue La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/407309395537", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET MANCHE BOIS OUTIL ESCALADE ALPINISME MONTAGNE, lot de 2 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 145, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227490575037", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Blue Ice Bluebird 45 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 198, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880060182360", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET (Petit) DÉCORATIF + THERMOMÈTRE et CHAUSSURE (vieille) MONTAGNE. CORDE. La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/377036653398", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET  , CANNE DE MARCHE DE MONTAGNE , CHAMONIX , POIGNEE CORNE DE CHAMOIX La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/168528836164", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET  , CANNE DE MARCHE DE MONTAGNE  GRAVEE La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 23, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/168528836506", "kind": "", "profit": null, "resale": null}, {"title": "Ancien PIOLET, bâton de marche,  montagne, déco, vintage bois et alu.Edelweiss La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 20, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/800833227576", "kind": "", "profit": null, "resale": null}, {"title": "Canne Ancienne de Marche Ferrée Bâton Pointe Piolet Alpinisme Bois Sculpté La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 30, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/306997698550", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien stubai années 50 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 74, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/178449883872", "kind": "", "profit": null, "resale": null}, {"title": "Hache à glace Grivel North Machine avec glace &amp; Thor - 47 cm (jaune sommet) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 227, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880061378877", "kind": "", "profit": null, "resale": null}, {"title": "Grivel North Machine Hache à glace avec glace &amp; Adze Vario - 47 cm (jaune sommet) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 227, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/880061302000", "kind": "", "profit": null, "resale": null}, {"title": "Grivel - The North Machine Carbon avec marteau machine à glace escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 315, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227219246195", "kind": "", "profit": null, "resale": null}, {"title": "Grivel - The North Machine Carbon avec pelle machine à glace escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 315, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/227219246163", "kind": "", "profit": null, "resale": null}, {"title": "Petzl - Machine à glace Nomic escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 285, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/327349723787", "kind": "", "profit": null, "resale": null}, {"title": "Machine à glaçons PETZL Nomic pour escalade sur glace 03/2026 pas de rappel La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 229, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/147361456111", "kind": "", "profit": null, "resale": null}, {"title": "Petzl - Pelle pour appareils à glace Quark/Nomic/Ergo piolets à glace outils à glace escalade sur glace La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 40, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/326934597439", "kind": "", "profit": null, "resale": null}, {"title": "Petzl - Mini Marteau Marteau pour glaçons Quark/Nomic/Ergonomic à partir de la version 2018 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 35, "source": "ebay", "seen": "2026-10-29 18:25", "url": "https://www.ebay.fr/itm/326794341662", "kind": "", "profit": null, "resale": null}, {"title": "Paire de piolets techniques montagne Simond Anaconda Cup + extras très bon état La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 250, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/257553867916", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel The Light Machine Escalade Alpinisme Technique La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 174, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/306165523745", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila LT Hammer Ice Axe - Packable Technical Piolet (43cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 155, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/800630614928", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila LT Adze Ice Axe - Packable Technical Piolet (43cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 167, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/389987647053", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila Adze Ice Axe - Lightweight Technical Piolet (49cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 201, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/389987646753", "kind": "", "profit": null, "resale": null}, {"title": "Blue Ice Akila Hammer Ice Axe - Lightweight Technical Piolet (49cm) La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 201, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/389987646759", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Charlet Chamonix La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 45, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/860065831725", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET ANCIEN J CHARLET N° 1 CHAMONIX ALPINISME ESCALADE DEBUT XXeS La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 115, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/377603022960", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien Charlet Moser, Chamonix La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 126, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/137881876162", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET METAL 82,5CM - LAPRADE - OUTIL ALPINISME ESCALADE MONTAGNE - La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/327308512046", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET MONTAGNE ESCALADE ALPINISME  INTERALP CAMP PREMANA MADE IN ITALY La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 79, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/307221948759", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET MANCHE BOIS - CAMP INTERALP- OUTIL ESCALADE ALPINISME MONTAGNE - La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 115, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/327351493359", "kind": "", "profit": null, "resale": null}, {"title": "piolet ancien Alpinisme Claudius   SIMOND  Special MK2 chamonix Montagne Ski La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 119, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/198736127317", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Simond Chamonix Mont-Blanc vintage alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 131, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/900020207230", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Chouinard Zéro alpinisme vintage climbing La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 176, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880055623536", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Claudius Simond Chamonix n°2 La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 65, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/237145511006", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme ancien manche bois tête métal dragonne pointe plaques souvenir La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 42, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/287669546376", "kind": "", "profit": null, "resale": null}, {"title": "2 anciens Piolets Claudius Simond CHAMONIX Mont Blanc/Montagne/alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 250, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/398393952744", "kind": "", "profit": null, "resale": null}, {"title": "Ancien et rare Piolet Suisse BHEND Vintage climbing alpinisme La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 400, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/178541478284", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Alpinisme Montagne Signature La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 125, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/236876709337", "kind": "", "profit": null, "resale": null}, {"title": "Rare ancien Piolet Claudius Simond CHAMONIX Mont Blanc numero 1 . La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 399, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/820042735581", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet vintage GRUEL MONT BLANC La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 60, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/136196157137", "kind": "", "profit": null, "resale": null}, {"title": "Ancien PIOLET d'alpinisme charlet moser 64 cm Montagne Deco Chalet No Simond La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 42, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/257808686382", "kind": "", "profit": null, "resale": null}, {"title": "BOÎTE RONDE BOIS TOURNÉ Art Populaire Alpiniste Piolet Montagne Art Déco d13.5cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 27, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/377603960060", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet d'alpiniste CHARLET MOSER FRANCE Old Ice collection montagne La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 52, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/237142556076", "kind": "", "profit": null, "resale": null}, {"title": "❤️Beau piolet Charlet Moser  escalade alpinisme escalade montagne * La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 80, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/405321430290", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet d'alpiniste CAMP INTERALP Made in ITALY MOSER Old Ice La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 280, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/128080258467", "kind": "", "profit": null, "resale": null}, {"title": "Piolet De Randonnée Sur Neige CAMP ALPINA 50 Cm. La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 139, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/305764021610", "kind": "", "profit": null, "resale": null}, {"title": "piolet Laprade by simond CHAMONIX et crampons Laprade - Alpinisme glacier La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 53, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/356420837992", "kind": "", "profit": null, "resale": null}, {"title": "CAMP Corsa piolet vert alpinisme, piolet d’alpinisme CAMP Corsa vert La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 53, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/287637869673", "kind": "", "profit": null, "resale": null}, {"title": "ALPINISME PIOLET CHARLET MOSER MADE IN FRANCE La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 58, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/386947309402", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet LAPRADE DESMAISON alpinisme escalade montagne sport d'hiver neige La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 63, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/188783004638", "kind": "", "profit": null, "resale": null}, {"title": "Ancien piolet d'alpinisme SIMOND COUGUAR Chamonix France vintage montagne La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 80, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/256570335914", "kind": "", "profit": null, "resale": null}, {"title": "PIOLET ANCIEN J CHARLET CHAMONIX ALPINISME ESCALADE GLACE HACHE DEBUT XXeS La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 170, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/166868066812", "kind": "", "profit": null, "resale": null}, {"title": "Ancien Rare Piolet CASSIN Himalaya alpinisme Montagne No CHARLET MOSER simond La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 53, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/960126519104", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Camp Zenith 65 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 164, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013165987", "kind": "", "profit": null, "resale": null}, {"title": "Piccozza Picozza Picca Alpinisme Technique GRIVEL GOST EVO 45 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 121, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/278119299749", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Piolet Summit 52 Cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 120, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/237134192970", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel Air Tech Evo 53 Cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 153, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/276929387071", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel G Zero Noir 58 Cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 76, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/306165523699", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Camp Corsa Nanotech 45 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 158, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013169579", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpin Camp Corsa 55 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 115, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013101349", "kind": "", "profit": null, "resale": null}, {"title": "Neve 65 cm Gris Anthracite Tête Ergonomique en Acier Piolets Marteaux Classique La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 100, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/137869099761", "kind": "", "profit": null, "resale": null}, {"title": "ANCIEN PIOLET INTERALP 1950 ITALY ALPINISME  (ville De Fabrication Premana Italy La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 240, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/187622330498", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Camp Neve 50 cm La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 92, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013083218", "kind": "", "profit": null, "resale": null}, {"title": "Boucle de piolet d'escalade Drag-Tour La page s'ouvre dans une nouvelle fenêtre ou un nouvel onglet", "price": 32, "source": "ebay", "seen": "2026-10-29 18:24", "url": "https://www.ebay.fr/itm/880013172326", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Kailas dagger ice axe neuf", "price": 120, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2603709158", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel The North Machine Carbon", "price": 190, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3285238740", "kind": "", "profit": null, "resale": null}, {"title": "Piolets grivel north machine carbone", "price": 220, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3280923794", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel", "price": 75, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3260791568", "kind": "", "profit": null, "resale": null}, {"title": "Lot de 2 Piolet grivel ancien modèle north machine cascade avec panne et lame neuve", "price": 340, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3142695375", "kind": "", "profit": null, "resale": null}, {"title": "Piolet carbone Black Diamond Cobra", "price": 120, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2950741533", "kind": "", "profit": null, "resale": null}, {"title": "Piolet sum tec PETZL", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3289314108", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme petzel sum'tec neuf", "price": 130, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3287529990", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Sum Tec", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3285182794", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Sum'tec Petzl", "price": 115, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3268919553", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Sumtec neuf marteau", "price": 130, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3200683407", "kind": "", "profit": null, "resale": null}, {"title": "1 Piolet Petzl Nomic", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3295972461", "kind": "", "profit": null, "resale": null}, {"title": "Lame de rechange nomic petzl", "price": 20, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3290007076", "kind": "", "profit": null, "resale": null}, {"title": "Une paire de piolets Nomic Petzl", "price": 250, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3289154951", "kind": "", "profit": null, "resale": null}, {"title": "2 Piolets Nomic Petzl", "price": 250, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3288900553", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl nomic", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3284207402", "kind": "", "profit": null, "resale": null}, {"title": "Paire nomic tres bon etat", "price": 375, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3278576517", "kind": "", "profit": null, "resale": null}, {"title": "Lame Krukonogi pour nomic petzl", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:24", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3193538976", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Quark", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3294239145", "kind": "", "profit": null, "resale": null}, {"title": "Paire de piolet Peztl quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3293524021", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 250, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292941656", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292940373", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 230, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292939883", "kind": "", "profit": null, "resale": null}, {"title": "Location piolet crampon", "price": 25, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/autres_services/3138423165", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Quark lame cascade", "price": 50, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3285672900", "kind": "", "profit": null, "resale": null}, {"title": "Lame piolet ice", "price": 60, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3284151594", "kind": "", "profit": null, "resale": null}, {"title": "Piolet traction petzl Quark", "price": 115, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3281573261", "kind": "", "profit": null, "resale": null}, {"title": "Lames de piolet Petzl", "price": 50, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3280240962", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Quark marteau", "price": 170, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3269606287", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Quark Petzl", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3269387944", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Petzl Quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3269041373", "kind": "", "profit": null, "resale": null}, {"title": "Piolet quark petzl", "price": 290, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3265765376", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark Charlet", "price": 109, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3240730594", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Quark", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3232900958", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3227512853", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 150, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3226098887", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Quarks Petzl", "price": 350, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3201357764", "kind": "", "profit": null, "resale": null}, {"title": "Quark petzl", "price": 40, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3126742429", "kind": "", "profit": null, "resale": null}, {"title": "Dragonne piolet Petzl", "price": 25, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3087099822", "kind": "", "profit": null, "resale": null}, {"title": "Dragonne clipsable quark", "price": 29, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3087098948", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Petzl Quark", "price": 320, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3032183387", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 290, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2981786947", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Spark ICE Rock", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2913978673", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl quark", "price": 300, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/2727973978", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Gully", "price": 95, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3295083678", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Technique alpinisme", "price": 60, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3292940988", "kind": "", "profit": null, "resale": null}, {"title": "Vends piolet technique Charlet-Moser", "price": 70, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3274121118", "kind": "", "profit": null, "resale": null}, {"title": "Piolet camp alpina", "price": 45, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3290442326", "kind": "", "profit": null, "resale": null}, {"title": "Paire piolet Black Diamond Viper", "price": 200, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3289949118", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Sum'Tec – Piolet technique d’alpinisme", "price": 100, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3287331313", "kind": "", "profit": null, "resale": null}, {"title": "Piolet technique CAMP X ALL MOUNTAIN", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3254420041", "kind": "", "profit": null, "resale": null}, {"title": "Piolet PETZL Sum’tec", "price": 130, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3279688478", "kind": "", "profit": null, "resale": null}, {"title": "Paire de piolets Grivel Quantum tech carbone", "price": 260, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3277154631", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Simond jaguar light 60cm", "price": 60, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3276094355", "kind": "", "profit": null, "resale": null}, {"title": "Lame piolet total ice + vario", "price": 20, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297755268", "kind": "", "profit": null, "resale": null}, {"title": "Lames piolets", "price": 30, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297752586", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Gully", "price": 100, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297738630", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Grivel Light Wing", "price": 35, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297602627", "kind": "", "profit": null, "resale": null}, {"title": "De très nombreux anciens piolets en bois chamonix", "price": 100, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/decoration/3297550354", "kind": "", "profit": null, "resale": null}, {"title": "Un piolet en bois démontable François Simond chamonix", "price": 340, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/decoration/3297548139", "kind": "", "profit": null, "resale": null}, {"title": "Piolet technique alpinisme", "price": 30, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297433147", "kind": "", "profit": null, "resale": null}, {"title": "Paire de Piolet Charlet Moser", "price": 110, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297411856", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Simona spécial MK2", "price": 95, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/decoration/3297279083", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Grivel The Dark Machine X", "price": 450, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3274611752", "kind": "", "profit": null, "resale": null}, {"title": "Piolet simond", "price": 40, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297241053", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Climbing Technologie Hound +", "price": 65, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297226947", "kind": "", "profit": null, "resale": null}, {"title": "Piolet petzl glacier", "price": 70, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297132441", "kind": "", "profit": null, "resale": null}, {"title": "Piolet pioche", "price": 145, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3297001274", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme", "price": 55, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3296781481", "kind": "", "profit": null, "resale": null}, {"title": "Piolet ancien François SIMOND Chamonix Mont-Blanc", "price": 120, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/collection/3296648258", "kind": "", "profit": null, "resale": null}, {"title": "Piolets PETZL - Quarks", "price": 209, "source": "leboncoin", "seen": "2026-10-29 18:23", "url": "https://www.leboncoin.fr/ad/sport_plein_air/3296636936", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Quark Ergo ice tools", "price": 275, "source": "vinted", "seen": "2026-10-29 18:22", "url": "/items/10346581271-charlet-moser-quark-ergo-ice-tools", "kind": "", "profit": null, "resale": null}, {"title": "Petzl Quark Eisgeräte Paar sehr guter Zustand", "price": 170, "source": "vinted", "seen": "2026-10-29 18:22", "url": "/items/9996087459-petzl-quark-eisgerate-paar-sehr-guter-zustand", "kind": "", "profit": null, "resale": null}, {"title": "Piolets Petzl Quark", "price": 240, "source": "vinted", "seen": "2026-10-29 18:22", "url": "/items/8413908501-piolets-petzl-quark", "kind": "", "profit": null, "resale": null}, {"title": "Charlet Moser Quark cascade ice pick", "price": 45, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10315126849-charlet-moser-quark-cascade-ice-pick", "kind": "", "profit": null, "resale": null}, {"title": "Fundas para piolos Quark, Nomic y Ergonomic", "price": 25, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/7831572150-fundas-para-piolos-quark-nomic-y-ergonomic", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme technique", "price": 30, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10570813978-piolet-alpinisme-technique", "kind": "", "profit": null, "resale": null}, {"title": "Accesorios Piolet Petzl Nomic/Ergonomic", "price": 35, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10580241645-accesorios-piolet-petzl-nomicergonomic", "kind": "", "profit": null, "resale": null}, {"title": "Piolet alpinisme", "price": 65, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10566363045-piolet-alpinisme", "kind": "", "profit": null, "resale": null}, {"title": "Crampones Camp Stalker y Piolet Simond", "price": 105, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10553318704-crampones-camp-stalker-y-piolet-simond", "kind": "", "profit": null, "resale": null}, {"title": "Canne de marche piolet ancienne", "price": 35, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10547546416-canne-de-marche-piolet-ancienne", "kind": "", "profit": null, "resale": null}, {"title": "Piolet décoratif alpin vintage avec cloche et chamois – 54 cm", "price": 20, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10526882866-piolet-decoratif-alpin-vintage-avec-cloche-et-chamois-54-cm", "kind": "", "profit": null, "resale": null}, {"title": "Piolet Charlet Moser", "price": 60, "source": "vinted", "seen": "2026-10-29 18:00", "url": "/items/10483115824-piolet-charlet-moser", "kind": "", "profit": null, "resale": null}]}, "ropes": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "harnesses": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "packs": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "ice_screws": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "crampons": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "base_layers": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "down_jackets": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "softshell_fleece": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "gloves": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "mountaineering_boots": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "climbing_shoes": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "touring_skis": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "touring_boots": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "touring_bindings": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "skins": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "avalanche_transceivers": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "shovel_probe": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "helmets": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "quickdraws_carabiners": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "belay_devices": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "protection_cams": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "sleeping_bags": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "tents": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}, "poles_headlamps": {"ads": 0, "online": 0, "asking_median": null, "quick_median": null, "quick_n": 0, "tracked": 0, "sell_through": null, "ebay_sold": 0, "ready": false, "deals_7d": 0, "sold_points": [], "unsold_points": [], "bands": [], "browse": []}}};
+
 const LABELS = {
-  hardshell_jacket: "Hardshell jackets", hardshell_pants: "Hardshell pants", ice_axes: "Ice axes",
-  ropes: "Ropes", harnesses: "Harnesses", packs: "Packs", ice_screws: "Ice screws", crampons: "Crampons",
-  base_layers: "Base layers", down_jackets: "Down jackets", softshell_fleece: "Softshell & fleece",
-  gloves: "Gloves", mountaineering_boots: "Mountaineering boots", climbing_shoes: "Climbing shoes",
-  touring_skis: "Touring skis", touring_boots: "Touring boots", touring_bindings: "Touring bindings",
-  skins: "Skins", avalanche_transceivers: "Avalanche transceivers", shovel_probe: "Shovels & probes",
-  helmets: "Helmets", quickdraws_carabiners: "Quickdraws & carabiners", belay_devices: "Belay devices",
-  protection_cams: "Cams & nuts", sleeping_bags: "Sleeping bags", tents: "Tents", poles_headlamps: "Poles & headlamps",
+  hardshell_jacket: "Vestes hardshell", hardshell_pants: "Pantalons hardshell", down_jackets: "Doudounes",
+  softshell_fleece: "Softshell & polaires", base_layers: "Sous-couches", gloves: "Gants",
+  mountaineering_boots: "Chaussures d'alpinisme", climbing_shoes: "Chaussons d'escalade",
+  touring_skis: "Skis de rando", touring_boots: "Chaussures de ski de rando", touring_bindings: "Fixations de rando", skins: "Peaux",
+  avalanche_transceivers: "DVA", shovel_probe: "Pelles & sondes",
+  ice_axes: "Piolets", crampons: "Crampons", ice_screws: "Broches à glace", ropes: "Cordes", harnesses: "Baudriers",
+  helmets: "Casques", quickdraws_carabiners: "Dégaines & mousquetons", belay_devices: "Systèmes d'assurage", protection_cams: "Friends & coinceurs",
+  packs: "Sacs à dos", sleeping_bags: "Sacs de couchage", tents: "Tentes", poles_headlamps: "Bâtons & frontales",
 };
+const FAMILIES = [
+  ["Alpinisme & escalade", ["ice_axes", "crampons", "ice_screws", "ropes", "harnesses", "helmets", "quickdraws_carabiners", "belay_devices", "protection_cams"]],
+  ["Vêtements", ["hardshell_jacket", "hardshell_pants", "down_jackets", "softshell_fleece", "base_layers", "gloves"]],
+  ["Ski de randonnée", ["touring_skis", "touring_boots", "touring_bindings", "skins"]],
+  ["Sécurité avalanche", ["avalanche_transceivers", "shovel_probe"]],
+  ["Chaussures", ["mountaineering_boots", "climbing_shoes"]],
+  ["Bivouac & divers", ["packs", "sleeping_bags", "tents", "poles_headlamps"]],
+];
+const SITES = { vinted: "Vinted", leboncoin: "Leboncoin", ebay: "eBay" };
+
 const label = k => LABELS[k] || k.replace(/_/g, " ");
-const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
-const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
-const eur = v => v == null ? "–" : v + "€";
-const signed = v => v == null ? "–" : `<span class="${v > 0 ? "pos" : "neg"}">${v > 0 ? "+" : ""}${v}€</span>`;
-const kindChip = k => !k ? "" : k.includes("flip") ? '<span class="chip flip">Flip</span>' : '<span class="chip personal">For you</span>';
+const site = s => SITES[s] || s;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = v => v == null ? "–" : Math.round(v * 100) + " %";
+const eur = v => v == null ? "–" : `${v} €`;
+const frDay = d => { const p = d.split("-"); return `${p[2]}/${p[1]}`; };
+const frSeen = s => `${s.slice(8, 10)}/${s.slice(5, 7)}`;
+const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`;
+const $ = id => document.getElementById(id);
+
+// Every category gets a family; ones added to config.yaml later land in "Autres".
+const KNOWN = FAMILIES.flatMap(([, ks]) => ks);
+const EXTRA = Object.keys(DATA.categories).filter(k => !KNOWN.includes(k));
+if (EXTRA.length) FAMILIES.push(["Autres", EXTRA]);
+const CATS = FAMILIES.flatMap(([, ks]) => ks).filter(k => DATA.categories[k]);
+const family = k => (FAMILIES.find(([, ks]) => ks.includes(k)) || ["Autres"])[0];
 
 function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 function theme() {
-  return { ink: css("--ink"), ink2: css("--ink-2"), ink3: css("--ink-3"), grid: css("--grid"), surface: css("--surface"),
+  return { ink: css("--ink"), ink2: css("--ink-2"), ink3: css("--ink-3"), grid: css("--rule"), surface: css("--surface"),
            series: [css("--s1"), css("--s2"), css("--s3")], data: css("--font-data"), body: css("--font-body") };
 }
 
+// ───────── Contour lines behind the hero ─────────
+function drawTopo() {
+  const canvas = $("topo");
+  if (!canvas || !canvas.getContext) return;
+  const box = canvas.getBoundingClientRect();
+  if (!box.width) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = box.width * dpr; canvas.height = box.height * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = css("--contour");
+  // Two summits; each ring is a closed curve whose radius wobbles with a few sines.
+  const peaks = [{ x: box.width * .82, y: box.height * .38, s: 1 }, { x: box.width * 1.02, y: box.height * .95, s: .7 }];
+  for (const p of peaks) {
+    for (let i = 1; i <= 16; i++) {
+      const r = i * 26 * p.s;
+      ctx.beginPath();
+      for (let a = 0; a <= Math.PI * 2 + .01; a += Math.PI / 90) {
+        const wobble = 1 + .16 * Math.sin(3 * a + i * .35) + .08 * Math.sin(5 * a - i * .6) + .05 * Math.sin(9 * a);
+        const x = p.x + Math.cos(a) * r * wobble * 1.25, y = p.y + Math.sin(a) * r * wobble * .8;
+        if (a === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.lineWidth = i % 5 === 0 ? 1.6 : .9;   // every fifth line is an index contour, as on a real topo map
+      ctx.stroke();
+    }
+  }
+}
+
+// ───────── Charts ─────────
 const charts = {};
 function draw(id, config, emptyText) {
-  const canvas = document.getElementById(id);
-  const box = canvas.parentElement;
-  charts[id]?.destroy();
-  box.querySelector(".empty")?.remove();
-  if (config && !window.Chart) { config = null; emptyText = "Charts need an internet connection to load."; }
+  const canvas = $(id), box = canvas.parentElement;
+  if (charts[id]) charts[id].destroy();
+  const old = box.querySelector(".empty");
+  if (old) old.remove();
+  if (config && !window.Chart) { config = null; emptyText = "Les graphiques ont besoin d'une connexion internet."; }
   canvas.hidden = !config;
   if (!config) { const m = document.createElement("div"); m.className = "empty"; m.textContent = emptyText; box.appendChild(m); return; }
   charts[id] = new Chart(canvas, config);
 }
-
-function baseOptions(t, { title, xTitle, yTitle, stacked = false, legend = true } = {}) {
-  const axis = (text) => ({
+function opts(t, { title, xTitle, yTitle, stacked = false, legend = true } = {}) {
+  const axis = text => ({
     stacked, grid: { color: t.grid, drawTicks: false }, border: { color: t.grid },
     ticks: { color: t.ink3, font: { family: t.data, size: 11 }, padding: 6 },
     title: text ? { display: true, text, color: t.ink2, font: { family: t.body, size: 12 } } : undefined,
@@ -236,7 +371,7 @@ function baseOptions(t, { title, xTitle, yTitle, stacked = false, legend = true 
     responsive: true, maintainAspectRatio: false, animation: false,
     interaction: { mode: "index", intersect: false },
     plugins: {
-      title: title ? { display: true, text: title, align: "start", color: t.ink, font: { family: t.body, size: 13, weight: "600" } } : undefined,
+      title: title ? { display: true, text: title, align: "start", color: t.ink, font: { family: t.body, size: 14, weight: "600" }, padding: { bottom: 12 } } : undefined,
       legend: { display: legend, align: "start", labels: { color: t.ink2, boxWidth: 10, boxHeight: 10, useBorderRadius: true, borderRadius: 2, font: { family: t.body, size: 12 } } },
       tooltip: { backgroundColor: t.surface, titleColor: t.ink, bodyColor: t.ink2, borderColor: t.grid, borderWidth: 1,
                  padding: 10, titleFont: { family: t.body, weight: "600" }, bodyFont: { family: t.data, size: 12 } },
@@ -244,163 +379,227 @@ function baseOptions(t, { title, xTitle, yTitle, stacked = false, legend = true 
     scales: { x: axis(xTitle), y: { ...axis(yTitle), beginAtZero: true } },
   };
 }
-const barStyle = t => ({ borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom", borderColor: t.surface, borderWidth: { top: 2 }, maxBarThickness: 28 });
+const bars = t => ({ borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom", borderColor: t.surface, borderWidth: { top: 2 }, maxBarThickness: 28 });
 
-// ───────────── Overview ─────────────
-function renderOverview(t) {
-  const days = DATA.days.map(d => d.slice(5));
-  const hasDeals = DATA.deals_per_day.personal.some(Boolean) || DATA.deals_per_day.flip.some(Boolean);
-  draw("dealsChart", hasDeals ? {
-    type: "bar",
-    data: { labels: days, datasets: [
-      { label: "For you (under your max price)", data: DATA.deals_per_day.personal, backgroundColor: t.series[0], ...barStyle(t) },
-      { label: "Flip (resale profit)", data: DATA.deals_per_day.flip, backgroundColor: t.series[1], ...barStyle(t) },
-    ] },
-    options: baseOptions(t, { title: "Good offers per day", stacked: true, yTitle: "offers" }),
-  } : null, "No good offers yet. Alerts are off in learning mode, and flips need about a week of data.");
-
-  const hasProfit = DATA.profit_per_day.some(Boolean);
-  const po = baseOptions(t, { title: "Estimated resale profit per day", yTitle: "€", legend: false });
-  po.plugins.tooltip.callbacks = { label: ctx => `${ctx.raw}€ from that day's flips` };
-  draw("profitChart", hasProfit ? {
-    type: "bar",
-    data: { labels: days, datasets: [{ label: "Estimated profit", data: DATA.profit_per_day, backgroundColor: t.series[1], ...barStyle(t) }] },
-    options: po,
-  } : null, "No resale opportunities yet. They appear once categories are Ready.");
-
-  draw("adsChart", DATA.days.length ? {
-    type: "bar",
-    data: { labels: days, datasets: DATA.sources.map((s, i) => ({ label: s, data: DATA.ads_per_day[s], backgroundColor: t.series[i % 3], ...barStyle(t) })) },
-    options: baseOptions(t, { title: "Ads collected per day, by site", stacked: true, yTitle: "new ads" }),
-  } : null, "No ads collected yet. Run the bot with --learn --loop.");
-}
-
-function renderOverviewStatic() {
+// ───────── Accueil ─────────
+function renderHome() {
   const tt = DATA.totals;
-  document.getElementById("tiles").innerHTML = [
-    ["Good offers today", tt.offers_today, `${tt.offers_7d} in the last 7 days`],
-    ["Flips (7 days)", tt.flips_7d, "worth buying to resell"],
-    ["Est. profit (7 days)", tt.profit_7d + "€", "if you'd bought every flip"],
-    ["Still available", tt.open_profit + "€", `${tt.open_flips} flips still online`],
-    ["Categories ready", `${tt.ready}/${tt.categories}`, "with a reliable resale price"],
-    ["Ads collected", tt.ads, `over ${tt.days} day${tt.days === 1 ? "" : "s"}`],
-  ].map(([k, v, s]) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("");
+  const when = new Date(DATA.generated.replace(" ", "T"));
+  $("heroDate").textContent = when.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  if (tt.offers_today > 0) {
+    const s = tt.offers_today > 1 ? "s" : "";
+    $("heroTitle").innerHTML = `<span class="big">${tt.offers_today}</span> bonne${s} affaire${s} aujourd'hui`;
+    $("heroText").textContent = tt.open_flips
+      ? `Dont ${plural(tt.open_flips, "annonce encore en ligne qui se revend", "annonces encore en ligne qui se revendent")} avec ${tt.open_profit} € de marge estimée au total.`
+      : `Des prix sous ton budget sur Vinted, Leboncoin et eBay. Pas encore assez de ventes observées pour estimer les reventes.`;
+  } else if (tt.ready) {
+    $("heroTitle").textContent = "Rien de bon aujourd'hui, pour l'instant";
+    $("heroText").textContent = `${tt.offers_7d} bonnes affaires sur les 7 derniers jours. Le bot repasse toutes les heures.`;
+  } else {
+    $("heroTitle").innerHTML = `Le bot <span class="big">apprend</span> le marché`;
+    $("heroText").textContent = `Il collecte les annonces et note celles qui partent vite, pour savoir à quel prix chaque matériel se revend vraiment. Comptez une semaine avant les premières estimations de revente.`;
+  }
+  $("heroStrip").innerHTML = [
+    [tt.offers_7d, "affaires sur 7 jours"],
+    [`${tt.profit_7d} €`, "de marge estimée sur 7 jours"],
+    [tt.ads, "annonces analysées"],
+    [`${tt.ready}/${tt.categories}`, "catégories prêtes"],
+  ].map(([v, k]) => `<span><b>${v}</b>${k}</span>`).join("");
 
-  document.getElementById("profitNote").textContent =
-    `Profit = resale price − what you pay (price + site buyer fees). Resale price = the median price of the same gear that sold within ${DATA.fast_days} days, ` +
-    `lowered ${Math.round(DATA.negotiation * 100)}% for buyers haggling on Vinted and Leboncoin (eBay prices are final), ` +
-    `then listed ${Math.round((1 - DATA.haircut) * 100)}% lower to sell fast.`;
-  document.getElementById("flipTable").innerHTML = DATA.top_flips.length
-    ? `<thead><tr><th>Ad</th><th>Category</th><th>Site</th><th class="num">Price</th><th class="num">Est. profit</th><th>Seen</th></tr></thead><tbody>` +
-      DATA.top_flips.map(f => `<tr><td class="title"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.title)}</a></td>
-        <td><a href="#cat-${esc(f.search)}">${esc(label(f.search))}</a></td><td>${esc(f.source)}</td>
-        <td class="num">${f.price}€</td><td class="num">${signed(f.profit)}</td><td>${esc(f.seen)}</td></tr>`).join("") + "</tbody>"
-    : `<tbody><tr><td>None yet. Resale opportunities need categories with enough quick-sale data (see below).</td></tr></tbody>`;
+  const flips = DATA.top_flips;
+  $("flipsLede").textContent = flips.length
+    ? `Achetées à ce prix, revendues au prix qui part en moins de ${DATA.fast_days} jours, négociation et frais déduits.` : "";
+  $("flips").innerHTML = flips.length
+    ? flips.slice(0, 9).map(f => `
+      <a class="flip" href="${esc(f.url)}" target="_blank" rel="noopener">
+        <span class="t">${esc(f.title)}</span>
+        <span class="meta">${esc(label(f.search))} · ${esc(site(f.source))} · vu le ${esc(frSeen(f.seen))}</span>
+        <span class="money"><span class="buy">Achat ${f.price} €</span><span class="gain">+${f.profit} €</span></span>
+      </a>`).join("")
+    : `<div class="empty-card">
+        <strong>Pas encore de revente à proposer.</strong>
+        <span>Une catégorie est prête quand le bot a vu au moins ${DATA.min_samples} ventes rapides. ${tt.ready} catégorie${tt.ready > 1 ? "s" : ""} sur ${tt.categories} le ${tt.ready > 1 ? "sont" : "est"}.</span>
+        <div class="progress" role="img" aria-label="${tt.ready} catégories prêtes sur ${tt.categories}"><i style="width:${Math.round(100 * tt.ready / Math.max(1, tt.categories))}%"></i></div>
+      </div>`;
 
-  document.getElementById("cats").innerHTML = Object.entries(DATA.categories).map(([k, c]) => `
-    <a class="cat-card" href="#cat-${esc(k)}">
-      <span class="name">${esc(label(k))}</span>
-      ${c.ready ? '<span class="chip ready">Ready</span>' : `<span class="chip learn">Learning ${c.quick_n}/${DATA.min_samples}</span>`}
-      <span class="row">Online now <b>${c.online}</b></span>
-      <span class="row">Good offers (7d) <b>${c.deals_7d}</b></span>
-      <span class="row">Quick-sale price <b>${eur(c.quick_median)}</b></span>
-      <span class="row">Sells within ${DATA.fast_days}d <b>${c.tracked ? pct(c.sell_through) : "–"}</b></span>
-    </a>`).join("");
-
-  document.getElementById("learnNote").textContent =
-    `${tt.tracked} ads have a known outcome (gone, or still online after ${DATA.fast_days} days) and ${tt.ebay_sold} real eBay sales are recorded. ` +
-    `These feed the quick-sale prices.`;
+  $("families").innerHTML = FAMILIES.map(([name, keys]) => {
+    const ks = keys.filter(k => DATA.categories[k]);
+    if (!ks.length) return "";
+    return `<div class="family"><h3>${esc(name)}</h3><div class="signs">${ks.map(k => {
+      const c = DATA.categories[k];
+      const sub = c.ready ? `revente ≈ ${eur(c.quick_median)} · ${pct(c.sell_through)} part en ${DATA.fast_days} j` : `apprentissage ${c.quick_n}/${DATA.min_samples}`;
+      return `<a class="sign${c.deals_7d ? " hot" : ""}" href="#cat-${esc(k)}">
+        <span class="n">${esc(label(k))}</span><span class="d">${c.deals_7d ? plural(c.deals_7d, "affaire", "affaires") : `${c.online} en ligne`}</span>
+        <span class="s">${sub}</span></a>`;
+    }).join("")}</div></div>`;
+  }).join("");
 }
 
-// ───────────── Category ─────────────
+function renderHomeCharts(t) {
+  const days = DATA.days.slice(-14), cut = DATA.days.length - days.length;
+  const lab = days.map(frDay);
+  const personal = DATA.deals_per_day.personal.slice(cut), flip = DATA.deals_per_day.flip.slice(cut);
+  draw("dealsChart", personal.some(Boolean) || flip.some(Boolean) ? {
+    type: "bar",
+    data: { labels: lab, datasets: [
+      { label: "Pour toi (sous ton budget)", data: personal, backgroundColor: t.series[0], ...bars(t) },
+      { label: "À revendre", data: flip, backgroundColor: t.series[1], ...bars(t) },
+    ] },
+    options: opts(t, { title: "Bonnes affaires par jour", stacked: true }),
+  } : null, "Aucune bonne affaire pour l'instant. En mode apprentissage, le bot collecte sans alerter.");
+  const profit = DATA.profit_per_day.slice(cut);
+  const po = opts(t, { title: "Marge estimée par jour", yTitle: "€", legend: false });
+  po.plugins.tooltip.callbacks = { label: ctx => `${ctx.raw} € de marge sur les reventes du jour` };
+  draw("profitChart", profit.some(Boolean) ? {
+    type: "bar",
+    data: { labels: lab, datasets: [{ label: "Marge", data: profit, backgroundColor: t.series[1], ...bars(t) }] },
+    options: po,
+  } : null, "Les marges apparaissent quand des catégories sont prêtes.");
+}
+
+// ───────── Catégorie ─────────
 let current = null;
-function renderCategory(t, key) {
+function renderCat(t, key) {
   const c = DATA.categories[key];
-  document.getElementById("catTitle").textContent = label(key);
-  document.getElementById("facts").innerHTML = [
-    ["Status", c.ready ? "Ready" : `Learning (${c.quick_n}/${DATA.min_samples} quick sales)`],
-    ["Asking median", eur(c.asking_median)],
-    ["Quick-sale price", c.quick_median ? `${c.quick_median}€` : "–"],
-    [`Sold within ${DATA.fast_days} days`, c.tracked ? `${pct(c.sell_through)} of ${c.tracked}` : "–"],
-    ["eBay sales", c.ebay_sold],
-  ].map(([k, v]) => `<span>${k} <b>${esc(v)}</b></span>`).join("");
-  renderBrowse();
+  current = key;
+  $("crumbs").innerHTML = `<a href="#accueil">Accueil</a> / ${esc(family(key))} / ${esc(label(key))}`;
+  $("catTitle").textContent = label(key);
+  $("facts").innerHTML = [
+    ["En ligne", c.online],
+    ["Prix demandé (médiane)", eur(c.asking_median)],
+    ["Prix de revente rapide", c.ready ? eur(c.quick_median) : `apprentissage ${c.quick_n}/${DATA.min_samples}`],
+    [`Part vendue en ${DATA.fast_days} j`, c.tracked ? pct(c.sell_through) : "–"],
+    ["Ventes eBay", c.ebay_sold],
+  ].map(([k, v]) => `<div class="fact"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join("");
+  renderAds();
 
   const pts = c.sold_points.length + c.unsold_points.length;
-  const allX = [...c.sold_points, ...c.unsold_points].map(p => p[0]);
-  const so = baseOptions(t, { title: "Each ad: price vs time until it disappeared", xTitle: "price (€)", yTitle: "days online" });
+  const xs = c.sold_points.concat(c.unsold_points).map(p => p[0]);
+  const so = opts(t, { title: "Chaque annonce : prix et jours en ligne", xTitle: "prix (€)", yTitle: "jours en ligne" });
   so.scales.x.beginAtZero = false;
   so.interaction = { mode: "nearest", intersect: true };
   so.plugins.tooltip.callbacks = { label: ctx => ctx.dataset.type === "line" ? null :
-    `${ctx.raw.x}€ · ${ctx.raw.y} days ${ctx.datasetIndex === 0 ? "until gone" : "online so far"}` };
+    `${ctx.raw.x} € · ${ctx.raw.y} j ${ctx.datasetIndex === 0 ? "avant de disparaître" : "en ligne pour l'instant"}` };
   draw("scatterChart", pts ? {
     type: "scatter",
     data: { datasets: [
-      { label: "Gone (≈ sold)", data: c.sold_points.map(([x, y]) => ({ x, y })), backgroundColor: t.series[0], borderColor: t.surface, borderWidth: 2, pointRadius: 5, pointHoverRadius: 7 },
-      { label: "Still for sale", data: c.unsold_points.map(([x, y]) => ({ x, y })), backgroundColor: "transparent", borderColor: t.ink3, borderWidth: 1.5, pointRadius: 4, pointHoverRadius: 6 },
-      { type: "line", label: `${DATA.fast_days}-day mark`, data: [{ x: Math.min(...allX), y: DATA.fast_days }, { x: Math.max(...allX), y: DATA.fast_days }],
+      { label: "Disparue (≈ vendue)", data: c.sold_points.map(([x, y]) => ({ x, y })), backgroundColor: t.series[0], borderColor: t.surface, borderWidth: 2, pointRadius: 5, pointHoverRadius: 7 },
+      { label: "Encore en vente", data: c.unsold_points.map(([x, y]) => ({ x, y })), backgroundColor: "transparent", borderColor: t.ink3, borderWidth: 1.5, pointRadius: 4, pointHoverRadius: 6 },
+      { type: "line", label: `${DATA.fast_days} jours`, data: [{ x: Math.min(...xs), y: DATA.fast_days }, { x: Math.max(...xs), y: DATA.fast_days }],
         borderColor: t.series[1], borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 0 },
     ] },
     options: so,
-  } : null, "No ads revisited yet. Each ad is revisited about once a day after it is first seen.");
+  } : null, "Aucune annonce revisitée pour l'instant. Le bot repasse sur chaque annonce environ une fois par jour.");
 
-  const bo = baseOptions(t, { title: "Share sold quickly, by price band", xTitle: "price band", yTitle: `% sold within ${DATA.fast_days} days`, legend: false });
+  const bo = opts(t, { title: `Part vendue en moins de ${DATA.fast_days} jours, par prix`, xTitle: "tranche de prix", legend: false });
   bo.scales.y.max = 100;
-  bo.scales.y.ticks.callback = v => v + "%";
+  bo.scales.y.ticks.callback = v => v + " %";
   bo.plugins.tooltip.callbacks = { label: ctx => { const b = c.bands[ctx.dataIndex];
-    return [`${Math.round(b.sell_through * 100)}% sold within ${DATA.fast_days} days`, `${b.n} ads`, b.median_days != null ? `typically in ${b.median_days} days` : "none sold fast"]; } };
+    return [`${Math.round(b.sell_through * 100)} % vendues en ${DATA.fast_days} j`, plural(b.n, "annonce", "annonces"), b.median_days != null ? `en ${b.median_days} j en général` : "aucune vendue vite"]; } };
   draw("bandChart", c.bands.length ? {
     type: "bar",
-    data: { labels: c.bands.map(b => b.label), datasets: [{ label: "sold quickly", data: c.bands.map(b => Math.round(b.sell_through * 100)),
+    data: { labels: c.bands.map(b => b.label.replace("€", " €")), datasets: [{ label: "vendues vite", data: c.bands.map(b => Math.round(b.sell_through * 100)),
       backgroundColor: t.series[0], borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: "bottom", maxBarThickness: 56 }] },
     options: bo,
-  } : null, `Needs at least 12 ads with a known outcome (gone, or still online after ${DATA.fast_days} days). This category has ${c.tracked}.`);
+  } : null, `Il faut au moins 12 annonces au résultat connu (disparue, ou encore en ligne après ${DATA.fast_days} jours). Cette catégorie en a ${c.tracked}.`);
 }
 
-function renderBrowse() {
+function renderAds() {
   const c = DATA.categories[current];
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  const only = document.getElementById("onlyDeals").checked;
-  const sort = document.getElementById("sort").value;
+  const q = $("q").value.trim().toLowerCase();
+  const only = $("onlyDeals").checked;
+  const sort = $("sort").value;
   let ads = c.browse.filter(a => (!q || a.title.toLowerCase().includes(q)) && (!only || a.kind));
-  if (sort === "price") ads = [...ads].sort((a, b) => a.price - b.price);
-  if (sort === "profit") ads = [...ads].sort((a, b) => (b.profit ?? -1e9) - (a.profit ?? -1e9));
-  document.getElementById("browseTable").innerHTML = ads.length
-    ? `<thead><tr><th>Ad</th><th></th><th>Site</th><th class="num">Price</th><th class="num">Resell at</th><th class="num">Est. profit</th><th>Seen</th></tr></thead><tbody>` +
-      ads.map(a => `<tr><td class="title"><a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.title)}</a></td>
-        <td>${kindChip(a.kind)}</td><td>${esc(a.source)}</td><td class="num">${a.price}€</td>
-        <td class="num">${eur(a.resale)}</td><td class="num">${signed(a.profit)}</td><td>${esc(a.seen)}</td></tr>`).join("") + "</tbody>"
-    : `<tbody><tr><td>${c.browse.length ? "No ad matches this filter." : "No ads online in this category yet."}</td></tr></tbody>`;
+  if (sort === "price") ads = ads.slice().sort((a, b) => a.price - b.price);
+  if (sort === "profit") ads = ads.slice().sort((a, b) => (b.profit ?? -1e9) - (a.profit ?? -1e9));
+  $("ads").innerHTML = ads.length ? ads.map(a => `
+    <a class="ad" href="${esc(a.url)}" target="_blank" rel="noopener">
+      <span class="t">${esc(a.title)}</span>
+      <span class="price">${a.price} €</span>
+      <span class="meta"><span class="site">${esc(site(a.source))}</span><span>vu le ${esc(frSeen(a.seen))}</span>
+        ${a.kind ? (a.kind.includes("flip") ? '<span class="tag flip">À revendre</span>' : '<span class="tag">Bon prix</span>') : ""}</span>
+      <span class="profit${a.profit > 0 ? " pos" : ""}">${a.profit == null ? "" : `revente ${a.resale} € · ${a.profit > 0 ? "+" : ""}${a.profit} €`}</span>
+    </a>`).join("")
+    : `<div class="ad"><span class="t">${c.browse.length ? "Aucune annonce ne correspond au filtre." : "Aucune annonce en ligne dans cette catégorie pour l'instant."}</span></div>`;
 }
 
-// ───────────── Routing ─────────────
-const nav = document.getElementById("catNav");
-function route() {
+// ───────── Marché ─────────
+function renderMarket(t) {
+  const tt = DATA.totals;
+  $("marketLede").textContent =
+    `${tt.ads} annonces collectées en ${plural(tt.days, "jour", "jours")}. ${tt.tracked} ont un résultat connu ` +
+    `(disparues, ou encore en ligne après ${DATA.fast_days} jours) et ${tt.ebay_sold} ventes eBay réelles sont enregistrées. C'est ce qui sert à estimer les prix de revente.`;
+  draw("adsChart", DATA.days.length ? {
+    type: "bar",
+    data: { labels: DATA.days.map(frDay), datasets: DATA.sources.map((s, i) => ({ label: site(s), data: DATA.ads_per_day[s], backgroundColor: t.series[i % 3], ...bars(t) })) },
+    options: opts(t, { title: "Annonces collectées par jour", stacked: true }),
+  } : null, "Aucune annonce collectée pour l'instant.");
+  $("catTable").innerHTML =
+    `<thead><tr><th>Catégorie</th><th>État</th><th class="r">Annonces</th><th class="r">Prix demandé</th><th class="r">Revente rapide</th><th class="r">Vendu en ${DATA.fast_days} j</th><th class="r">Ventes eBay</th></tr></thead><tbody>` +
+    CATS.map(k => { const c = DATA.categories[k]; return `<tr><td><a href="#cat-${esc(k)}">${esc(label(k))}</a></td>
+      <td>${c.ready ? '<span class="state ok">✓ Prête</span>' : `<span class="state learn">◔ ${c.quick_n}/${DATA.min_samples}</span>`}</td>
+      <td class="r num">${c.ads}</td><td class="r num">${eur(c.asking_median)}</td><td class="r num">${eur(c.quick_median)}</td>
+      <td class="r num">${c.tracked ? pct(c.sell_through) : "–"}</td><td class="r num">${c.ebay_sold}</td></tr>`; }).join("") + "</tbody>";
+  $("profitNote").textContent =
+    `Marge = prix de revente − ce que tu paies (prix + frais acheteur du site). Le prix de revente part des ventes rapides observées ` +
+    `(annonces disparues en moins de ${DATA.fast_days} jours, et ventes eBay). Sur Vinted et Leboncoin on retire ${Math.round(DATA.negotiation * 100)} % ` +
+    `parce que les acheteurs négocient (les prix eBay sont déjà des prix payés), puis on revend ${Math.round((1 - DATA.haircut) * 100)} % en dessous pour que ça parte vite.`;
+}
+
+// ───────── Navigation ─────────
+function buildMenu() {
+  $("gearMenu").innerHTML = FAMILIES.map(([name, keys]) => {
+    const ks = keys.filter(k => DATA.categories[k]);
+    return ks.length ? `<div><h3>${esc(name)}</h3><ul>${ks.map(k =>
+      `<li><a href="#cat-${esc(k)}">${esc(label(k))}<span>${DATA.categories[k].online}</span></a></li>`).join("")}</ul></div>` : "";
+  }).join("");
+}
+function setMenu(open) {
+  $("gearPanel").hidden = !open;
+  $("gearBtn").setAttribute("aria-expanded", String(open));
+}
+function currentView() {
+  const hash = location.hash.slice(1);
+  if (hash.startsWith("cat-") && DATA.categories[hash.slice(4)]) return ["cat", hash.slice(4)];
+  return [hash === "marche" ? "marche" : "accueil", null];
+}
+function render() {
   const t = theme();
-  const m = location.hash.match(/^#cat-(.+)$/);
-  const key = m && DATA.categories[m[1]] ? m[1] : null;
-  document.getElementById("view-overview").hidden = !!key;
-  document.getElementById("view-category").hidden = !key;
-  document.getElementById("tab-overview").setAttribute("aria-current", key ? "false" : "page");
-  nav.value = key || "";
-  if (key) { current = key; renderCategory(t, key); } else { renderOverview(t); }
-  window.scrollTo(0, 0);
+  const [view, cat] = currentView();
+  if (view === "cat") renderCat(t, cat);
+  else if (view === "marche") renderMarket(t);
+  else { renderHomeCharts(t); drawTopo(); }
+}
+function route() {
+  const [view] = currentView();
+  for (const v of ["accueil", "cat", "marche"]) $("view-" + v).hidden = v !== view;
+  $("nav-accueil").setAttribute("aria-current", view === "accueil" ? "page" : "false");
+  $("nav-marche").setAttribute("aria-current", view === "marche" ? "page" : "false");
+  setMenu(false);
+  render();
 }
 
 (function init() {
-  document.getElementById("stamp").textContent = `Updated ${DATA.generated}`;
-  document.getElementById("fastLede").textContent =
-    `Each dot is an ad the bot revisited. Filled dots disappeared (most likely sold) after that many days; hollow dots are still online. ` +
-    `Below the dashed line = sold within ${DATA.fast_days} days. The bars show how often each price range sold that fast: where they drop is the price where it stops selling quickly.`;
-  nav.innerHTML = `<option value="">Choose a category…</option>` +
-    Object.keys(DATA.categories).map(k => `<option value="${esc(k)}">${esc(label(k))}</option>`).join("");
-  nav.addEventListener("change", () => { location.hash = nav.value ? "cat-" + nav.value : "overview"; });
-  ["q", "onlyDeals", "sort"].forEach(id => document.getElementById(id).addEventListener("input", renderBrowse));
-  renderOverviewStatic();
+  const g = DATA.generated;
+  $("stamp").textContent = `mis à jour le ${frSeen(g)} à ${g.slice(11)}`;
+  $("fastLede").textContent =
+    `Chaque point est une annonce que le bot a revisitée. Les points pleins ont disparu (le plus souvent : vendues) après ce nombre de jours ; ` +
+    `les cercles sont encore en ligne. Sous la ligne pointillée : partie en moins de ${DATA.fast_days} jours. ` +
+    `À droite, la part vendue vite par tranche de prix : là où les barres chutent, c'est le prix à partir duquel ça ne part plus.`;
+  $("footer").textContent = `Scrapbot collecte les annonces publiques de Vinted, Leboncoin et eBay. Les marges sont des estimations. ` +
+    `Vérifie toujours l'état du matériel de sécurité d'occasion (cordes, baudriers, casques, DVA) avant de l'acheter ou de le revendre.`;
+  buildMenu();
+  renderHome();
   if (window.Chart) Chart.defaults.font.family = theme().body;
-  window.addEventListener("hashchange", route);
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", route);
-  new MutationObserver(route).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  $("gearBtn").addEventListener("click", () => setMenu($("gearPanel").hidden));
+  $("ctaGear").addEventListener("click", () => $("gearSection").scrollIntoView({ behavior: "smooth" }));
+  $("ctaFlips").addEventListener("click", () => $("flipsSection").scrollIntoView({ behavior: "smooth" }));
+  ["q", "onlyDeals", "sort"].forEach(id => $(id).addEventListener("input", renderAds));
+  window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+  window.addEventListener("resize", () => { if (!$("view-accueil").hidden) drawTopo(); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+  new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   route();
 })();
 </script>
