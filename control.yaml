@@ -1,0 +1,8 @@
+# Scrapbot remote control. Edit this file on github.com (pencil icon, then "Commit changes"):
+# the bot reads it within 5 minutes.
+#
+# phase: learn = phase 1, collects prices, no profit calculation
+#        deals = phase 2, compares each new ad to the learned resale price
+phase: learn
+# Change this number (any new value) to make the bot restart, e.g. after editing config.yaml.
+restart: 0
